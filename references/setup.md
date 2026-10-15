@@ -5,3 +5,5 @@
 ```json
 {"path":"/path/to/agent-kit","url":"仓库 URL","branch":"main"}
 ```
+
+若为新建的空仓库，先建立 `skills/global/` 并提交，再把 agent-kit-manager 放入其中（见 [skill_setup.md](skill_setup.md)）。
