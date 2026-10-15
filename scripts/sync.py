@@ -6,10 +6,12 @@ import subprocess
 from pathlib import Path
 
 
-def report(message, config=None):
+def report(message, config=None, changed=None):
     result = {"message": message}
     if config is not None:
         result["agent_kit"] = config
+    if changed:
+        result["changed"] = changed
     print(json.dumps(result, ensure_ascii=False))
 
 
@@ -53,12 +55,18 @@ def main():
         current = git(path, "branch", "--show-current")
         if current != branch:
             raise RuntimeError(f"当前分支是 {current or '游离 HEAD'}，预期为 {branch}")
+        before = git(path, "rev-parse", "HEAD")
         git(path, "pull", "--ff-only", "origin", branch)
+        git(path, "submodule", "update", "--init", "--recursive")
+        after = git(path, "rev-parse", "HEAD")
     except (OSError, RuntimeError) as exc:
         report(f"同步未完成：{exc}。请检查并处理后重新运行 sync.py。", config)
         return
 
-    report("同步成功。", config)
+    changed = []
+    if before != after:
+        changed = git(path, "diff", "--name-only", before, after).splitlines()
+    report("同步成功。", config, changed)
 
 
 if __name__ == "__main__":
