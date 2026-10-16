@@ -5,7 +5,9 @@ description: 管理 agent-kit 配置仓库与跨工程复用资产：从 kit 检
 
 # Agent Kit Manager
 
-`agent-kit`（`~/.agent-kit` 指向的仓库）是跨工程复用资产的唯一存放处；本机各 agent 的 skill 目录只放链接。
+## 目标
+
+统一管理 skill、MCP 等跨工程复用资产，按需引入，减少项目上下文大小。`agent-kit`（`~/.agent-kit` 指向的仓库）是这些资产的唯一存放处；本机各 agent 的 skill 目录只放链接，需要时才引入。
 
 1. 识别用户意图，并在后台运行本 skill 的 `scripts/sync.py`。等待结果后继续。
 2. 若同步未完成，按返回的 `message` 处理；需要初次配置时阅读 [setup.md](references/setup.md)。若用户只要求同步，成功后结束。
