@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Print the agent-kit skill catalog as JSON for the calling agent."""
+"""Scan the whole kit for skills and print the catalog as JSON for the calling agent."""
 
 import json
 import re
@@ -72,16 +72,25 @@ def main():
         emit({"message": f"无法读取 ~/.agent-kit：{exc}；请执行 setup.md。"})
         return
 
-    skills_root = path / "skills"
-    if not skills_root.is_dir():
-        emit({"message": f"未找到 {skills_root}；请检查 kit 目录结构。"})
+    if not path.is_dir():
+        emit({"message": f"未找到 kit 目录 {path}；请检查 ~/.agent-kit 配置。"})
         return
 
+    skills_root = path / "skills"
     submodules = submodule_paths(path)
     skills = []
-    for skill_md in sorted(skills_root.glob("*/*/SKILL.md")):
+    for skill_md in sorted(path.rglob("SKILL.md")):
+        if ".git" in skill_md.relative_to(path).parts:
+            continue
         skill_dir = skill_md.parent
         relative = skill_dir.relative_to(path).as_posix()
+        parent = skill_dir.parent
+        try:
+            category = parent.relative_to(skills_root).as_posix()
+        except ValueError:
+            category = parent.relative_to(path).as_posix()
+        if category == ".":
+            category = ""
         fields = parse_frontmatter(skill_md.read_text(encoding="utf-8", errors="replace"))
         if relative in submodules:
             form = "submodule"
@@ -92,7 +101,7 @@ def main():
         skills.append(
             {
                 "name": fields.get("name", skill_dir.name),
-                "category": skill_dir.parent.name,
+                "category": category,
                 "path": relative,
                 "description": fields.get("description", ""),
                 "form": form,
