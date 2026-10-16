@@ -8,6 +8,7 @@ from pathlib import Path
 
 FRONTMATTER_PATTERN = re.compile(r"^---[ \t]*\n(.*?)\n---[ \t]*\n", re.DOTALL)
 FIELD_PATTERN = re.compile(r"^([A-Za-z0-9_-]+):[ \t]*(.*)$")
+BLOCK_PATTERN = re.compile(r"^([A-Za-z0-9_-]+):[ \t]*([|>][-+0-9]*)[ \t]*$")
 
 
 def emit(payload):
@@ -18,14 +19,29 @@ def parse_frontmatter(text):
     match = FRONTMATTER_PATTERN.match(text)
     if not match:
         return {}
+    lines = match.group(1).splitlines()
     fields = {}
-    for line in match.group(1).splitlines():
+    index = 0
+    while index < len(lines):
+        line = lines[index]
+        block = BLOCK_PATTERN.match(line)
+        if block:
+            key, style = block.group(1), block.group(2)
+            parts = []
+            index += 1
+            while index < len(lines) and (not lines[index].strip() or lines[index][:1] in (" ", "\t")):
+                parts.append(lines[index].strip())
+                index += 1
+            joiner = "\n" if style.startswith("|") else " "
+            fields[key] = joiner.join(part for part in parts if part)
+            continue
         field = FIELD_PATTERN.match(line)
         if field:
             value = field.group(2).strip()
             if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
                 value = value[1:-1]
             fields[field.group(1)] = value
+        index += 1
     return fields
 
 
