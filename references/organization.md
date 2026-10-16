@@ -13,7 +13,7 @@
 
 - 自用沉淀：直接放 kit 目录。
 - 独立仓库（自己的或第三方的）：git submodule；在其内部修改前先 `git switch main`（submodule 默认停在 detached HEAD），推送后在 kit 内提交新的指针。
-- 其他来源：下载后放入，并在 `<skill>/source.md` 记录来源 URL。
+- 其他来源：下载后放入，并在 `<skill>/.source.json` 记录来源（`source` 必填；补充说明放 `note`）。
 
 ## 链接
 

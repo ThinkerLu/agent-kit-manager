@@ -92,21 +92,28 @@ def main():
         if category == ".":
             category = ""
         fields = parse_frontmatter(skill_md.read_text(encoding="utf-8", errors="replace"))
+        source_file = skill_dir / ".source.json"
         if relative in submodules:
             form = "submodule"
-        elif (skill_dir / "source.md").is_file():
+        elif source_file.is_file():
             form = "download"
         else:
             form = "dir"
-        skills.append(
-            {
-                "name": fields.get("name", skill_dir.name),
-                "category": category,
-                "path": relative,
-                "description": fields.get("description", ""),
-                "form": form,
-            }
-        )
+        entry = {
+            "name": fields.get("name", skill_dir.name),
+            "category": category,
+            "path": relative,
+            "description": fields.get("description", ""),
+            "form": form,
+        }
+        if source_file.is_file():
+            try:
+                source = json.loads(source_file.read_text(encoding="utf-8")).get("source")
+                if isinstance(source, str) and source:
+                    entry["source"] = source
+            except (OSError, ValueError, TypeError):
+                pass
+        skills.append(entry)
 
     emit({"kit": str(path), "skills": skills})
 

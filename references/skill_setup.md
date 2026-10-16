@@ -15,6 +15,6 @@
 ## 创建并入库
 
 1. 起草 skill（环境中有 skill-creator 时使用它），确定名称与描述。
-2. 按 [organization.md](organization.md) 确定存储形态与分类：独立 git 仓库用 submodule；其他来源下载放入，并在 `<skill>/source.md` 记录来源 URL。
+2. 按 [organization.md](organization.md) 确定存储形态与分类：独立 git 仓库用 submodule；其他来源下载放入，并在 `<skill>/.source.json` 记录来源。
 3. 放入 kit 内合适的位置（位置与层级不限，尽量沿用现有结构；`list.py` 全库可检索），需要时链接到目标作用域。
 4. 提交并推送 kit 仓库变更。
